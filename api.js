@@ -40,8 +40,16 @@ router.get('/repo/:repo/:dir/:subdir',async (req,res)=>{
     const repo = req.params.repo
     const dir = req.params.dir
     const subdir = req.params.subdir
-    const items = await readdir(assets_dir+'/'+repo+'/'+dir+'/'+subdir)
-    return res.json({
+    let is_404 = false
+    let items = []
+    const isdir = (await (lstat(assets_dir+'/'+repo+'/'+dir+'/'+subdir))).isDirectory()
+    if(isdir){
+        items = await readdir(assets_dir+'/'+repo+'/'+dir+'/'+subdir)
+    }
+    else{
+        is_404 = true
+    }
+    return res.status(is_404?404:200).json({
         repo,
         dir,
         subdir,
